@@ -1,4 +1,5 @@
 {
+  "name": "feibot",
   "dependencies": {
     "discord.js": "^14.6.0"
   }
