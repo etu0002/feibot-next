@@ -17,9 +17,11 @@
         "@typescript-eslint"
     ],
     "ignorePatterns": [
+        "node_modules",
         "node_modules/*",
         "./node_modules/**",
-        "**/node_modules/**"
+        "**/node_modules/**",
+        "/**/node_modules/*"
     ],
     "rules": {
         "indent": [
