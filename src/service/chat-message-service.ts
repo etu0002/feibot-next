@@ -5,6 +5,8 @@ export const storeMessage = async (message: Message) => {
     const { cleanContent, channelId, author } = message
 
     if (!cleanContent) return
+
+    // Remove emoji from tag message
     const text = cleanContent.replace(/(<a?)?:\w+:(\d{18}>)?/g, '').trim()
     if (!text) return
 
@@ -17,3 +19,5 @@ export const storeMessage = async (message: Message) => {
 
     await chatMessage.save()
 }
+
+export const getMessageLog = async (channelId: string, limit = 10) => ChatMessage.find({ channelId }).limit(limit).sort({ createdAt: -1 })

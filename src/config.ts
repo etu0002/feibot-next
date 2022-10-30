@@ -39,10 +39,12 @@ export default {
      * @type {object}
      * @property {string} name Bot name
      * @property {string} identity Bot default identity, will be used if custom identity has not been set
+     * @property {number} contextLength Number of the latest chat messages that will be used to generate response from OpenAI
      */
     bot: {
         name: process.env.BOT_NAME || 'Fei',
-        identity: process.env.BOT_IDENTITY || ''
+        identity: process.env.BOT_IDENTITY || '',
+        contextLength: parseInt(process.env.BOT_CONTEXT_LENGTH) || 10
     },
 
     /**

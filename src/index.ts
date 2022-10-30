@@ -3,6 +3,7 @@ import { Client, GatewayIntentBits, Message, Events } from 'discord.js'
 import { connect } from '@src/lib/mongoose'
 import { storeMessage } from './service/chat-message-service'
 import config from '@src/config'
+import { getAiResponse } from '@src/service/openai-service'
 
 const client = new Client({
     intents: [
@@ -18,10 +19,18 @@ client.once(Events.ClientReady, (client: Client) => {
 })
 
 client.on(Events.MessageCreate, async (message: Message) => {
+    console.log('on message', message.cleanContent)
     // Save message to be used later when generating response from OpenAI
     await storeMessage(message)
 
-    console.log('chat message saved')
+    // Check for ping
+    if (message.cleanContent && message.cleanContent.includes(`@${config.bot.name}`)) {
+        message.channel.sendTyping()
+
+        // Get the AI response and reply to message
+        const response = await getAiResponse(message)
+        if (response) message.channel.send(response).catch(console.log)
+    }
 })
 
 
