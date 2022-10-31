@@ -7,7 +7,7 @@ import { Message } from 'discord.js'
  * @param {Message} message The message object from Discord, retreived when someone send a message to a channel.
  * @returns {Promise<void>}
  */
-export const storeMessage = async (message: Message) => {
+export const storeMessage = async (message: Message): Promise<void> => {
     const { cleanContent, channelId, author } = message
 
     if (!cleanContent) return

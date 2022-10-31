@@ -54,7 +54,7 @@ export const getAiResponse = async (message: Message): Promise<string> => {
  * @param {number} limit contextLength or how many message we want to retreive and make into prompt
  * @returns {Promise<string>}
  */
-const generateMessagePrompt = async (channelId: string, limit = 10): Promise<string> => {
+const generateMessagePrompt = async (channelId: string, limit: number = 10): Promise<string> => {
     const messages = await getMessageLog(channelId, limit)
     messages.reverse()
 
