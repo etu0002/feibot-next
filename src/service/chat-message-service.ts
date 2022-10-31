@@ -10,9 +10,10 @@ import { Message } from 'discord.js'
 export const storeMessage = async (message: Message): Promise<void> => {
     const { cleanContent, channelId, author } = message
 
+    // Make sure message isn't empty
     if (!cleanContent) return
 
-    // Remove emoji from tag message
+    // Remove emoji tag from message
     const text = cleanContent.replace(/(<a?)?:\w+:(\d{18}>)?/g, '').trim()
     if (!text) return
 
