@@ -1,6 +1,12 @@
-import ChatMessage from '@src/models/chat-message'
+import ChatMessage, { ChatMessageInterface } from '@src/models/chat-message'
 import { Message } from 'discord.js'
 
+/**
+ * @description Store the message Object into database.
+ *
+ * @param {Message} message The message object from Discord, retreived when someone send a message to a channel.
+ * @returns {Promise<void>}
+ */
 export const storeMessage = async (message: Message) => {
     const { cleanContent, channelId, author } = message
 
@@ -20,4 +26,11 @@ export const storeMessage = async (message: Message) => {
     await chatMessage.save()
 }
 
-export const getMessageLog = async (channelId: string, limit = 10) => ChatMessage.find({ channelId }).limit(limit).sort({ createdAt: -1 })
+/**
+ * @description Retreive a list of messages from database.
+ *
+ * @param {string} channelId the channel ID
+ * @param {number} limit contextLength or how many message we want to retreive and make into prompt
+ * @returns {Promise<ChatMessageInterface[]>}
+ */
+export const getMessageLog = async (channelId: string, limit: number = 10): Promise<ChatMessageInterface[]> => ChatMessage.find({ channelId }).limit(limit).sort({ createdAt: -1 })

@@ -1,7 +1,7 @@
 import 'module-alias/register'
 import { Client, GatewayIntentBits, Message, Events } from 'discord.js'
 import { connect } from '@src/lib/mongoose'
-import { storeMessage } from './service/chat-message-service'
+import { storeMessage } from '@src/service/chat-message-service'
 import config from '@src/config'
 import { getAiResponse } from '@src/service/openai-service'
 
@@ -35,7 +35,10 @@ client.on(Events.MessageCreate, async (message: Message) => {
 
 
 const main = async () => {
+    // Wait for MongoDB connection
     await connect()
+
+    // Login to discord as Bot
     client.login(config.discord.token)
 }
 

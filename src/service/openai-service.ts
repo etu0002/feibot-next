@@ -6,7 +6,12 @@ import openai from '@src/lib/openai'
 /* eslint @typescript-eslint/no-var-requires: "off" */
 const { encode } = require('gpt-3-encoder')
 
-
+/**
+ * @description Generate response from OpenAI using latest few messages from the channel which the message Object comes from.
+ *
+ * @param {Message} message The message object from Discord, retreived when someone send a message to a channel.
+ * @returns {Promise<string>}
+ */
 export const getAiResponse = async (message: Message): Promise<string> => {
     const { name, identity, contextLength } = config.bot
     const messagePrompt = await generateMessagePrompt(message.channelId, contextLength)
@@ -27,7 +32,7 @@ export const getAiResponse = async (message: Message): Promise<string> => {
         })
 
         if (response && response.data.choices.length > 0 && response.data.choices[0].text) {
-            if (response.data.choices[0].text) return response.data.choices[0].text
+            return response.data.choices[0].text
         } else {
             console.log('no response')
         }
@@ -39,6 +44,16 @@ export const getAiResponse = async (message: Message): Promise<string> => {
     }
 }
 
+/**
+ * @description Get the latest messages from specified channel and arrange it into format that will be understand by OpenAI to generate response.
+ * The format will be:
+ * [User Name]: question
+ * [Bot Name]: answer
+ *
+ * @param {string} channelId the channel ID
+ * @param {number} limit contextLength or how many message we want to retreive and make into prompt
+ * @returns {Promise<string>}
+ */
 const generateMessagePrompt = async (channelId: string, limit = 10): Promise<string> => {
     const messages = await getMessageLog(channelId, limit)
     messages.reverse()

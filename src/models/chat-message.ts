@@ -2,7 +2,8 @@ import mongoose from '@src/lib/mongoose'
 import { Document, Schema, Types, Model } from 'mongoose'
 
 /**
- * @description ChatMessage interface
+ * @description TypeScript interface for ChatMessage
+ *
  * @interface ChatMessage
  * @property {string} _id Chat message id
  * @property {string} text Chat message content
@@ -18,7 +19,8 @@ export interface ChatMessageInterface extends Document {
 }
 
 /**
- * @description ChatMessage Schema
+ * @description The schema for database model ChatMessage
+ * s
  * @constant ChatMessageSchema
  * @type {Schema<ChatMessageInterface}
  * @extends Schema
@@ -44,7 +46,8 @@ const ChatMessageSchema: Schema<ChatMessageInterface> = new Schema<ChatMessageIn
 }, { timestamps: true })
 
 /**
- * @description ChatMessage model
+ * @description Registering MongoDB database model for ChatMessage
+ *
  * @constant ChatMessage
  * @type {Model<ChatMessageInterface>}
  * @extends Model
