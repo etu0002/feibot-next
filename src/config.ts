@@ -55,6 +55,8 @@ export default {
      * @property {string} apiKey OpenAI API key
      */
     openai: {
-        apiKey: process.env.OPENAI_APIKEY
+        apiKey: process.env.OPENAI_APIKEY,
+        model: process.env.OPENAI_MODEL || 'text-davinci-002',
+        tokenLimit: parseInt(process.env.OPENAI_TOKEN_LIMIT) || 1000
     }
 }

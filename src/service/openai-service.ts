@@ -14,20 +14,20 @@ const { encode } = require('gpt-3-encoder')
  */
 export const getAiResponse = async (message: Message): Promise<string> => {
     const { name, identity, contextLength } = config.bot
+    const { model, tokenLimit } = config.openai
     const messagePrompt = await generateMessagePrompt(message.channelId, contextLength)
 
     const prompt = `${identity} My name is ${name}.${messagePrompt} \n${name}: `
-    console.log(prompt)
 
     try {
         const response = await openai.createCompletion({
-            model: 'text-davinci-002',
+            model: model,
             prompt: prompt,
             temperature: 0.9,
             top_p: 0.95,
             frequency_penalty: 0.5,
             presence_penalty: 0.5,
-            max_tokens: 1000,
+            max_tokens: tokenLimit * 0.25,
             stop: [`${name}: `]
         })
 
@@ -56,6 +56,7 @@ export const getAiResponse = async (message: Message): Promise<string> => {
  */
 const generateMessagePrompt = async (channelId: string, limit: number): Promise<string> => {
     const messages = await getMessageLog(channelId, limit)
+    const { tokenLimit } = config.openai
     messages.reverse()
 
     let prompt = ''
@@ -66,7 +67,7 @@ const generateMessagePrompt = async (channelId: string, limit: number): Promise<
 
     const encodedPrompt = encode(prompt)
 
-    if (encodedPrompt.length > 3000) {
+    if (encodedPrompt.length > (tokenLimit * 0.75)) {
         return generateMessagePrompt(channelId, limit - 1)
     }
 
