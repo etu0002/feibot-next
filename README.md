@@ -21,7 +21,6 @@ Make sure you have docker installed on you machine, you can refer to [https://do
 
 - Rename `.env.example` to `.env`
 - Fill up the cofiguration in the `.env` (don't change the `DB_HOST` as it is provided by docker, you can leave `DB_USER` and `DB_PASSWORD` empty)
-- Start the container `docker compose up`
-- Start the container in detached mode so you don't need to leave command promt opened `docker compose up -d`
-- Force rebuilding the bot, for when you make some changes to the source code `docker compose up --build`
+- Start the container `docker compose up` or start the container in detached mode so you don't need to leave command promt opened `docker compose up -d`
+- Force rebuild the bot, for when you make some changes to the source code `docker compose up --build`
 - Stop the container `docker-compose down`
