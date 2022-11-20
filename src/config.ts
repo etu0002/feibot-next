@@ -50,6 +50,7 @@ export default {
     /**
      * @description OpenAI API configuration
      * @see https://openai.com/api/
+     * @see https://beta.openai.com/docs/models/overview
      *
      * @type {object}
      * @property {string} apiKey OpenAI API key
