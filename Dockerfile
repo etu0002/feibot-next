@@ -1,11 +1,11 @@
-FROM node:16.14
+FROM oven/bun:1
 
 ENV USER=bot
 
 # install python and make
-RUN apt-get update && \
-    apt-get install -y python3 build-essential && \
-    apt-get purge -y --auto-remove
+# RUN apt-get update && \
+#     apt-get install -y python3 build-essential && \
+#     apt-get purge -y --auto-remove
 
 # create bot user
 RUN groupadd -r ${USER} && \
@@ -15,11 +15,11 @@ RUN groupadd -r ${USER} && \
 USER ${USER}
 WORKDIR /home/bot
 
-COPY --chown=${USER}:${USER} package*.json ./
+COPY --chown=${USER}:${USER} bun.lockb ./
 COPY --chown=${USER}:${USER} package.json ./
-RUN npm ci
+RUN bun install
 # VOLUME [ "/home/bot" ]
 
 COPY --chown=${USER}:${USER}  . .
 
-ENTRYPOINT [ "npm", "start" ]
+ENTRYPOINT [ "bun", "run", "start" ]

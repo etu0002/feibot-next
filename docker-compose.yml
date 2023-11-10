@@ -11,19 +11,8 @@ services:
       - BOT_NAME=${BOT_NAME}
       - BOT_IDENTITY=${BOT_IDENTITY}
       - BOT_CONTEXT_LENGTH=${BOT_CONTEXT_LENGTH}
-      - DISCORD_TOKEN=${DISCORD_TOKEN}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DISCORD_TOKEN=NDkyMjY3ODc4NDE1MDczMjgx.GzgJB2.B4riHdEvpK7xNZ7IuWGa0onjlqQkXfGjX-1K60
+      - DATABASE_URL=${DATABASE_URL}
       - OPENAI_APIKEY=${OPENAI_APIKEY}
-  db:
-    image: mongo:5.0.6
-    container_name: bot-db
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - PORT=${DB_PORT}
-    volumes:
-      - ./database:/database
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OPENAI_TOKEN_LIMIT=${OPENAI_TOKEN_LIMIT}

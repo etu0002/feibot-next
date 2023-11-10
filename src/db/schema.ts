@@ -19,40 +19,14 @@ import {
  */
 export const mysqlTable = mysqlTableCreator((name) => `feibot_${name}`)
 
-export const users = mysqlTable('users', {
-  id: bigint('id', { mode: 'number' }).primaryKey().autoincrement(),
-  name: varchar('name', { length: 256 }),
-  uuid: varchar('uuid', { length: 256 }),
-  createdAt: timestamp('created_at')
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp('updatedAt').onUpdateNow()
-})
-
-export const servers = mysqlTable('servers', {
-  id: bigint('id', { mode: 'number' }).primaryKey().autoincrement(),
-  name: varchar('name', { length: 256 }),
-  uuid: varchar('uuid', { length: 256 }),
-  createdAt: timestamp('created_at')
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp('updatedAt').onUpdateNow()
-})
-
-export const channels = mysqlTable('channels', {
-  id: bigint('id', { mode: 'number' }).primaryKey().autoincrement(),
-  name: varchar('name', { length: 256 }),
-  uuid: varchar('uuid', { length: 256 }),
-  createdAt: timestamp('created_at')
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp('updatedAt').onUpdateNow()
-})
-
 export const messages = mysqlTable('messages', {
   id: bigint('id', { mode: 'number' }).primaryKey().autoincrement(),
-  userId: bigint('user_id', { mode: 'number' }).notNull(),
-  channelId: bigint('channel_id', { mode: 'number' }).notNull(),
+  uuid: varchar('uuid', { length: 256 }),
+  userUuid: varchar('user_uuid', { length: 256 }),
+  userName: varchar('user_name', { length: 256 }),
+  channelUuid: varchar('channel_uuid', { length: 256 }),
+  serverUuid: varchar('server_uuid', { length: 256 }),
+  serverName: varchar('server_name', { length: 256 }),
   content: text('content'),
   cleanContent: text('clean_content'),
   createdAt: timestamp('created_at')
