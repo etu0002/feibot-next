@@ -8,11 +8,10 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - BOT_NAME=${BOT_NAME}
-      - BOT_IDENTITY=${BOT_IDENTITY}
-      - BOT_CONTEXT_LENGTH=${BOT_CONTEXT_LENGTH}
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DATABASE_URL=${DATABASE_URL}
       - OPENAI_APIKEY=${OPENAI_APIKEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
       - OPENAI_TOKEN_LIMIT=${OPENAI_TOKEN_LIMIT}
+    env_file:
+      - .env.prod
