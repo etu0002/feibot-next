@@ -33,7 +33,7 @@ const chatCompletions = async (
 
 const getTextCompletionsPrompt = async (message: Message, settings: string) => {
   const chats = await message.channel.messages.fetch({
-    limit: 10,
+    limit: 20,
   });
 
   let prompt = `${settings}\n`;
@@ -48,6 +48,9 @@ const getTextCompletionsPrompt = async (message: Message, settings: string) => {
     }: ${sanitizeMessageContent(chat.cleanContent)}`;
   });
 
+  console.log(prompt);
+  console.log("prompt length", encode(prompt).length);
+
   return prompt;
 };
 
@@ -55,11 +58,12 @@ const textCompletions = async (prompt: string): Promise<string | undefined> => {
   const completions = await openai.completions.create({
     prompt: prompt,
     model: env.OPENAI_MODEL,
-    max_tokens: 1200,
+    max_tokens: 500,
   });
 
   await db.insert(openaiLogs).values({
     prompt: prompt,
+    promthLength: encode(prompt).length,
     response: JSON.stringify(completions),
   });
 

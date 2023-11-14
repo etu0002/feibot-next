@@ -42,6 +42,7 @@ export const messages = mysqlTable("messages", {
 export const openaiLogs = mysqlTable("openai_logs", {
   id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
   prompt: text("prompt"),
+  promthLength: bigint("prompt_length", { mode: "number" }),
   response: text("response"),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)

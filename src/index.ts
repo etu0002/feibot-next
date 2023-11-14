@@ -36,7 +36,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
   if (messageDirectedAtBot) {
     let prompt = await getTextCompletionsPrompt(
       message,
-      `My name is ${client.user?.displayName}.`
+      `My name is ${client.user?.displayName}. I have bubbly personality. I will format my reply in discord markdown is needed.`
     );
 
     prompt += `\n${client.user?.displayName}: `;

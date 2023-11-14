@@ -6,8 +6,15 @@ const checkIfMessageIsDirectedAtBot = async (message: Message) => {
 
   if (message.mentions.has(message.client.user?.id!)) return true;
 
+  if (
+    message.cleanContent.endsWith(message.client.user?.displayName!) ||
+    message.cleanContent.startsWith(message.client.user?.displayName!) ||
+    message.cleanContent.endsWith(message.client.user?.displayName! + "?")
+  )
+    return true;
+
   let previousMessages = await message.channel.messages.fetch({
-    limit: 5,
+    limit: 10,
     before: message.id,
   });
 

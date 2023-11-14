@@ -16,7 +16,7 @@
     "dotenv": "^16.0.3",
     "drizzle-orm": "^0.28.5",
     "gpt-3-encoder": "^1.1.4",
-    "openai": "^4.17.2",
+    "openai": "^4.17.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
