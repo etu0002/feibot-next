@@ -12,6 +12,10 @@ import {
 import { checkIfMessageIsDirectedAtBot } from "./service/bot";
 import { db } from "./db";
 import { botLogs } from "./db/schema";
+import { getChannelThread, logChannel } from "./service/db/channel";
+import { runThread } from "./service/assistance/thread";
+import { getMessages } from "./service/assistance/message";
+import { getAssistanceResponse } from "./service/assistance";
 
 const client = new Client({
   intents: [
@@ -31,36 +35,58 @@ client.on(Events.MessageCreate, async (message: Message) => {
 
   if (message.author.id === client.user?.id) return;
 
-  const messageDirectedAtBot = await checkIfMessageIsDirectedAtBot(message);
+  const response = await getAssistanceResponse(message);
 
-  if (messageDirectedAtBot) {
-    let prompt = await getTextCompletionsPrompt(
-      message,
-      `My name is ${client.user?.displayName}. I have bubbly personality. I will format my reply in discord markdown is needed.`
-    );
+  console.log("ASSISTANCE RESPONSE");
+  console.log(response);
 
-    prompt += `\n${client.user?.displayName}: `;
-
-    const response = await textCompletions(prompt);
-
-    if (response) {
-      message.channel.send(response);
-    }
-
-    await db.insert(botLogs).values({
-      channelUuid: message.channelId,
-      message: message.cleanContent,
-      messageIsDirectedAtBot: messageDirectedAtBot,
-      response,
+  if (response)
+    message.channel.send(response.value).then((message) => {
+      console.log("MESSAGE SENT");
     });
-  } else {
-    await db.insert(botLogs).values({
-      channelUuid: message.channelId,
-      message: message.cleanContent,
-      messageIsDirectedAtBot: messageDirectedAtBot,
-      response: "",
-    });
-  }
+
+  // const threadUuid = await getChannelThread(message.channel);
+  // if (threadUuid) {
+  //   const run = await runThread(threadUuid);
+
+  //   // wait for 5 seconds
+  //   await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  //   const messages = await getMessages(threadUuid);
+  //   const content = messages.data[0]?.content[0];
+  //   if (content?.type === "text") console.log(content.text);
+  // }
+
+  // const messageDirectedAtBot = await checkIfMessageIsDirectedAtBot(message);
+
+  // if (messageDirectedAtBot) {
+  //   let prompt = await getTextCompletionsPrompt(
+  //     message,
+  //     `My name is ${client.user?.displayName}. I have bubbly personality. I will format my reply in discord markdown is needed.`
+  //   );
+
+  //   prompt += `\n${client.user?.displayName}: `;
+
+  //   const response = await textCompletions(prompt);
+
+  //   if (response) {
+  //     message.channel.send(response);
+  //   }
+
+  //   await db.insert(botLogs).values({
+  //     channelUuid: message.channelId,
+  //     message: message.cleanContent,
+  //     messageIsDirectedAtBot: messageDirectedAtBot,
+  //     response,
+  //   });
+  // } else {
+  //   await db.insert(botLogs).values({
+  //     channelUuid: message.channelId,
+  //     message: message.cleanContent,
+  //     messageIsDirectedAtBot: messageDirectedAtBot,
+  //     response: "",
+  //   });
+  // }
 });
 
 client.on(Events.Error, (error: Error) => {

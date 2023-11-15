@@ -61,3 +61,36 @@ export const botLogs = mysqlTable("bot_logs", {
     .notNull(),
   updatedAt: timestamp("updatedAt").onUpdateNow(),
 });
+
+export const channels = mysqlTable("channels", {
+  id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+  threadUuid: varchar("thread_uuid", { length: 256 }),
+  uuid: varchar("uuid", { length: 256 }),
+  name: varchar("name", { length: 256 }),
+  serverUuid: varchar("server_uuid", { length: 256 }),
+  serverName: varchar("server_name", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow(),
+});
+
+export const threads = mysqlTable("threads", {
+  id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+  uuid: varchar("uuid", { length: 256 }),
+  channelUuid: varchar("channel_uuid", { length: 256 }),
+  userUuid: varchar("user_uuid", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow(),
+});
+
+export const messageSent = mysqlTable("message_sent", {
+  id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+  messageUuid: varchar("message_uuid", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow(),
+});

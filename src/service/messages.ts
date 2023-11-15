@@ -9,11 +9,13 @@ import { messages } from "~/db/schema";
  * @returns The sanitized message content.
  */
 const sanitizeMessageContent = (content: string) => {
-  return content
-    .replace(/<@!\d+>/g, "")
-    .replace(/<a:.+:\d+>/g, "")
-    .replace(/<:.+:\d+>/g, "")
-    .replace(/@/g, "");
+  return (
+    content
+      // .replace(/<@!\d+>/g, "")
+      // .replace(/<a:.+:\d+>/g, "")
+      // .replace(/<:.+:\d+>/g, "")
+      .replace(/@/g, "")
+  );
 };
 
 /**

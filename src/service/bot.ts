@@ -44,7 +44,8 @@ const checkIfMessageIsDirectedAtBot = async (message: Message) => {
 
   let prompt = await getTextCompletionsPrompt(
     message,
-    `Determine if the last message is directed at ${message.client.user?.displayName}, reply with yes or no.`
+    `Determine if the last message is directed at ${message.client.user?.displayName}, reply with yes or no.`,
+    10
   );
 
   const response = await textCompletions(prompt);

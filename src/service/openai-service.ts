@@ -31,9 +31,13 @@ const chatCompletions = async (
   }
 };
 
-const getTextCompletionsPrompt = async (message: Message, settings: string) => {
+const getTextCompletionsPrompt = async (
+  message: Message,
+  settings: string,
+  limit?: number
+) => {
   const chats = await message.channel.messages.fetch({
-    limit: 20,
+    limit: 10,
   });
 
   let prompt = `${settings}\n`;
@@ -43,9 +47,16 @@ const getTextCompletionsPrompt = async (message: Message, settings: string) => {
 
     const author = chat.guild?.members.cache.get(chat.author.id);
 
+    let sanitizedContent = sanitizeMessageContent(chat.cleanContent);
+    limit &&
+      (sanitizedContent = sanitizedContent
+        .split(" ")
+        .slice(0, limit)
+        .join(" "));
+
     prompt += `\n${
       author?.nickname || chat.author.displayName
-    }: ${sanitizeMessageContent(chat.cleanContent)}`;
+    }: ${sanitizedContent}`;
   });
 
   console.log(prompt);
