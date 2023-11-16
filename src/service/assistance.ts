@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
 import { and, eq } from "drizzle-orm";
-import { db } from "~/db";
-import { threads } from "~/db/schema";
-import openai from "~/lib/openai";
+import { db } from "../db";
+import { threads } from "../db/schema";
+import openai from "../lib/openai";
 import { sanitizeMessageContent } from "./messages";
 import util from "util";
 import {
