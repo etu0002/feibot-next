@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { desc, eq } from "drizzle-orm";
-import { db } from "../db";
-import { messages } from "../db/schema";
+import { db } from "~/db";
+import { messages } from "~/db/schema";
 
 /**
  * Sanitizes the content of a message by removing user mentions and custom emojis.

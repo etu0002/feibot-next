@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { env } from "../env";
+import { env } from "~/env";
 
 const getWeather = async (args: string) => {
   const { location, unit } = JSON.parse(args);

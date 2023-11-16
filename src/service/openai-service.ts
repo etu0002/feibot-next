@@ -1,8 +1,8 @@
 import { ChatCompletionMessage } from "openai/resources";
-import { db } from "../db";
-import { openaiLogs } from "../db/schema";
-import { env } from "../env";
-import openai from "../lib/openai";
+import { db } from "~/db";
+import { openaiLogs } from "~/db/schema";
+import { env } from "~/env";
+import openai from "~/lib/openai";
 import { sanitizeMessageContent } from "./messages";
 import { Message } from "discord.js";
 import { encode } from "gpt-3-encoder";
