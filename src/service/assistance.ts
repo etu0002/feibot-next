@@ -11,11 +11,13 @@ import {
 } from "openai/resources/beta/threads/runs/runs";
 import { changeUserNickname, getCurrentTime, getWeather } from "./functions";
 import { checkIfMessageIsDirectedAtBot } from "./bot";
+import { writeLog } from "~/lib/log";
 
 const getAssistanceResponse = async (message: Message) => {
   const threadId = await createThread(message);
-  console.log("THREAD ID", threadId);
 
+  writeLog(`MESSAGE RECEIVED ${message.content}`);
+  writeLog(`THREAD ID ${threadId}`);
   if (!threadId) return;
 
   const { messageDirectedAtBot } = await handleAssistanceResponse(
@@ -27,8 +29,9 @@ const getAssistanceResponse = async (message: Message) => {
   if (!messageDirectedAtBot) return;
 
   const messages = await getThreadMessages(threadId);
-  console.log("MESSAGES");
-  consoleLog(
+  writeLog(`THREAD MESSAGES ${messages.data.length}`);
+
+  writeLog(
     messages.data.map((message) => {
       const role = message.role;
       const content =
@@ -58,15 +61,15 @@ const handleAssistanceResponse = async (
   let in_progress = ["in_progress", "queued"];
   let tries = 0;
 
-  console.log("RUNS", message ? "has message" : "no message");
-  consoleLog(runs.data.map((run) => [run.status, run.id]));
+  writeLog("HANDLE ASSISTANCE RESPONSE");
+  writeLog(runs.data.map((run) => [run.status, run.id]));
 
   while (
     runs.data.find((run) => in_progress.includes(run.status)) &&
     tries < 120
   ) {
-    console.log("CHECKING RUNS");
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    writeLog("THREAD RUNS IN PROGRESS");
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     runs = await openai.beta.threads.runs.list(threadId);
     tries++;
@@ -76,8 +79,8 @@ const handleAssistanceResponse = async (
     const runRequiresActions = runs.data.filter(
       (run) => run.status === "requires_action"
     );
-    console.log("RUNS REQUIRES ACTION");
-    consoleLog(runRequiresActions);
+    writeLog("RUNS REQUIRES ACTION");
+    writeLog(runRequiresActions);
 
     for (const run of runRequiresActions) {
       await handleThreadRunAction(run, threadId, message);
@@ -86,10 +89,10 @@ const handleAssistanceResponse = async (
     await handleAssistanceResponse(threadId, message);
   } else {
     if (saveMessage) {
-      await storeThreadMessage(threadId, message);
+      await storeThreadMessage(message);
 
       messageDirectedAtBot = await checkIfMessageIsDirectedAtBot(message);
-      console.log("MESSAGE DIRECTED AT BOT", messageDirectedAtBot);
+      writeLog(`MESSAGE DIRECTED AT BOT ${messageDirectedAtBot}`);
 
       if (!messageDirectedAtBot) return { messageDirectedAtBot };
 
@@ -111,7 +114,7 @@ const getFunctionOutput = async (
   args: string,
   message?: Message
 ) => {
-  console.log("getFunctionOutput");
+  writeLog(`GET FUNCTION OUTPUT ${name}`);
 
   switch (name) {
     case "get_weather":
@@ -173,8 +176,8 @@ const handleThreadRunActionCalls = async (
     }
   }
 
-  console.log("result");
-  consoleLog(result);
+  writeLog("ACTION CALLS RESULT");
+  writeLog(result);
 
   return result;
 };
@@ -206,15 +209,54 @@ const getThreadMessages = async (threadId: string) => {
   return openai.beta.threads.messages.list(threadId);
 };
 
-const storeThreadMessage = async (threadId: string, message: Message) => {
-  const author = message.guild?.members.cache.get(message.author.id);
+const waitForThreadRuns = async (threadId: string) => {
+  let runs = await openai.beta.threads.runs.list(threadId);
+  let in_progress = ["in_progress", "queued", "requires_action"];
+  let tries = 0;
 
-  return openai.beta.threads.messages.create(threadId, {
-    role: "user",
-    content: `${
-      author?.nickname || message.author.displayName
-    }: ${sanitizeMessageContent(message.cleanContent)}`,
+  consoleLog(runs.data.map((run) => [run.status, run.id]));
+
+  while (
+    runs.data.find((run) => in_progress.includes(run.status)) &&
+    tries < 120
+  ) {
+    consoleLog("THREAD RUNS IN PROGRESS");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    runs = await openai.beta.threads.runs.list(threadId);
+    tries++;
+  }
+};
+
+const storeThreadMessage = async (message: Message) => {
+  writeLog("STORE THREAD MESSAGE");
+  const author = message.guild?.members.cache.get(message.author.id);
+  const cleanContent = sanitizeMessageContent(message.cleanContent);
+
+  writeLog(`MESSAGE CLEAN CONTENT ${cleanContent}`);
+  if (!cleanContent) return;
+
+  const threads = await db.query.threads.findMany({
+    where: (channels) => eq(channels.channelUuid, message.channelId),
   });
+
+  if (!threads.length) return;
+
+  writeLog(`INSERTING MESSAGES INTO THREADS ${threads.length}`);
+  await Promise.all(
+    threads
+      .filter((thread) => thread.uuid)
+      .map(async (thread) => {
+        await waitForThreadRuns(thread.uuid!);
+
+        await openai.beta.threads.messages.create(thread.uuid!, {
+          role: "user",
+          content: `${
+            author?.nickname || message.author.displayName
+          }: ${cleanContent}`,
+        });
+      })
+  );
 };
 
 const deleteThread = async (threadId: string) => {

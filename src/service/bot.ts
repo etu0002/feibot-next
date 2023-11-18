@@ -6,10 +6,16 @@ const checkIfMessageIsDirectedAtBot = async (message: Message) => {
 
   if (message.mentions.has(message.client.user?.id!)) return true;
 
+  const botName = message.client.user?.displayName.toLocaleLowerCase();
+  const cleanContent = message.cleanContent.toLocaleLowerCase();
+  const cleanContentSplit = cleanContent.split(" ");
+
   if (
-    message.cleanContent.endsWith(message.client.user?.displayName!) ||
-    message.cleanContent.startsWith(message.client.user?.displayName!) ||
-    message.cleanContent.endsWith(message.client.user?.displayName! + "?")
+    cleanContent.endsWith(botName) ||
+    cleanContent.startsWith(botName) ||
+    cleanContent.endsWith(botName + "?") ||
+    cleanContent.startsWith(botName + "?") ||
+    (cleanContentSplit.length > 1 && cleanContentSplit[1] === botName)
   )
     return true;
 

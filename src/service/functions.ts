@@ -1,10 +1,10 @@
 import { Message } from "discord.js";
 import { env } from "~/env";
+import { writeLog } from "~/lib/log";
 
 const getWeather = async (args: string) => {
   const { location, unit } = JSON.parse(args);
-  console.log("GET WEATHER");
-  console.log(location, unit);
+  writeLog(`GET WEATHER ${location} ${unit}`);
 
   try {
     const response = await fetch(
@@ -14,33 +14,31 @@ const getWeather = async (args: string) => {
     );
     const data = await response.json();
 
-    console.log(data);
+    writeLog(data);
     return JSON.stringify(data);
   } catch (error: any) {
-    console.log(error.message);
+    writeLog("FAILED TO GET WEATHER");
+    writeLog(error.message);
     return "failed";
   }
 };
 
 const getCurrentTime = (args: string) => {
   const { location } = JSON.parse(args);
-  console.log("GET TIME");
-  console.log(location);
+  writeLog(`GET CURRENT TIME ${location}`);
 
   const date = new Date();
   const utcDate = new Date(date.toUTCString());
 
-  console.log(utcDate);
+  writeLog(utcDate);
 
   return `here's current time in ISO 8601 ${utcDate}`;
 };
 
 const changeUserNickname = async (args: string, message?: Message) => {
-  console.log("CHANGE NICKNAME");
   const { user: nickname, name } = JSON.parse(args);
 
-  console.log(nickname, name);
-  console.log(message ? "has message" : "no message");
+  writeLog(`CHANGE USER NICKNAME ${nickname} to ${name}`);
   if (!message) return "failed";
 
   const author = message.guild?.members.cache.find(
@@ -55,7 +53,8 @@ const changeUserNickname = async (args: string, message?: Message) => {
     return "success";
   } catch (error: any) {
     if (typeof error.message === "string") return error.message;
-    console.log(error.message);
+    writeLog("FAILED TO CHANGE USER NICKNAME");
+    writeLog(error.message);
     return "failed";
   }
 };

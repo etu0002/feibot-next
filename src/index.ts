@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits, Message, Events } from "discord.js";
 import { env } from "~/env";
 import { logMessage } from "~/service/messages";
 import { getAssistanceResponse } from "~/service/assistance";
+import { writeLog } from "./lib/log";
 
 const client = new Client({
   intents: [
@@ -14,7 +15,7 @@ const client = new Client({
 
 client.once(Events.ClientReady, (client: Client) => {
   if (client) {
-    console.log("Ready! Logged in as", client.user?.tag);
+    writeLog(`Ready! Logged in as ${client.user?.tag}`);
   }
 });
 
@@ -25,23 +26,22 @@ client.on(Events.MessageCreate, async (message: Message) => {
 
   const response = await getAssistanceResponse(message);
 
-  console.log("ASSISTANCE RESPONSE");
-  console.log(response);
+  writeLog(`ASSISTANCE RESPONSE ${response}`);
 
   if (response) {
     message.channel.send(response.value).then((message) => {
-      console.log("MESSAGE SENT");
+      writeLog(`ASSISTANCE RESPONSE SENT ${message.content}`);
     });
   }
 });
 
 client.on(Events.Error, (error: Error) => {
-  console.error("The WebSocket encountered an error:", error);
+  writeLog(`The WebSocket encountered an error: ${error}`);
 });
 
 const main = async () => {
   client.login(env.DISCORD_TOKEN).catch((error) => {
-    console.error("Failed to login:", error);
+    writeLog(`Failed to login to Discord: ${error}`);
   });
 };
 
