@@ -20,7 +20,7 @@ const checkIfMessageIsDirectedAtBot = async (message: Message) => {
     return true;
 
   let previousMessages = await message.channel.messages.fetch({
-    limit: 10,
+    limit: 4,
     before: message.id,
   });
 

@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/db";
-import { threads } from "~/db/schema";
+import { channels, threads } from "~/db/schema";
 import openai from "~/lib/openai";
 import { sanitizeMessageContent } from "./messages";
 import util from "util";
@@ -89,7 +89,7 @@ const handleAssistanceResponse = async (
     await handleAssistanceResponse(threadId, message);
   } else {
     if (saveMessage) {
-      await storeThreadMessage(message);
+      await storeThreadMessage(threadId, message);
 
       messageDirectedAtBot = await checkIfMessageIsDirectedAtBot(message);
       writeLog(`MESSAGE DIRECTED AT BOT ${messageDirectedAtBot}`);
@@ -228,7 +228,7 @@ const waitForThreadRuns = async (threadId: string) => {
   }
 };
 
-const storeThreadMessage = async (message: Message) => {
+const storeThreadMessage = async (threadId: string, message: Message) => {
   writeLog("STORE THREAD MESSAGE");
   const author = message.guild?.members.cache.get(message.author.id);
   const cleanContent = sanitizeMessageContent(message.cleanContent);
@@ -236,27 +236,16 @@ const storeThreadMessage = async (message: Message) => {
   writeLog(`MESSAGE CLEAN CONTENT ${cleanContent}`);
   if (!cleanContent) return;
 
-  const threads = await db.query.threads.findMany({
-    where: (channels) => eq(channels.channelUuid, message.channelId),
+  writeLog(`INSERTING MESSAGES INTO THREADS ${threadId}`);
+
+  await waitForThreadRuns(threadId);
+
+  await openai.beta.threads.messages.create(threadId!, {
+    role: "user",
+    content: `${
+      author?.nickname || message.author.displayName
+    }: ${cleanContent}`,
   });
-
-  if (!threads.length) return;
-
-  writeLog(`INSERTING MESSAGES INTO THREADS ${threads.length}`);
-  await Promise.all(
-    threads
-      .filter((thread) => thread.uuid)
-      .map(async (thread) => {
-        await waitForThreadRuns(thread.uuid!);
-
-        await openai.beta.threads.messages.create(thread.uuid!, {
-          role: "user",
-          content: `${
-            author?.nickname || message.author.displayName
-          }: ${cleanContent}`,
-        });
-      })
-  );
 };
 
 const deleteThread = async (threadId: string) => {
@@ -276,51 +265,43 @@ const createThread = async (message: Message) => {
 
   if (!channel) return;
 
-  let query = await db.query.threads
+  let query = await db.query.channels
     .findFirst({
-      where: (threads) =>
-        and(
-          eq(threads.channelUuid, channel.id),
-          eq(threads.userUuid, message.author.id)
-        ),
+      where: (channels) => eq(channels.uuid, channel.id),
     })
     .execute();
 
   if (!query) {
-    await db.insert(threads).values({
-      channelUuid: channel.id,
-      userUuid: message.author.id,
-    });
+    await db
+      .insert(channels)
+      .values({
+        uuid: channel.id,
+        name: channel.name,
+        serverUuid: server?.id,
+        serverName: server?.name,
+      })
+      .execute();
 
-    query = await db.query.threads
+    query = await db.query.channels
       .findFirst({
-        where: (threads) =>
-          and(
-            eq(threads.channelUuid, channel.id),
-            eq(threads.userUuid, message.author.id)
-          ),
+        where: (channels) => eq(channels.uuid, channel.id),
       })
       .execute();
   }
 
-  if (!query?.uuid) {
+  if (!query?.threadUuid) {
     const thread = await openai.beta.threads.create({});
 
     await db
-      .update(threads)
-      .set({ uuid: thread.id })
-      .where(
-        and(
-          eq(threads.channelUuid, channel.id),
-          eq(threads.userUuid, message.author.id)
-        )
-      )
+      .update(channels)
+      .set({ threadUuid: thread.id })
+      .where(eq(channels.uuid, channel.id))
       .execute();
 
     return thread.id;
   }
 
-  return query?.uuid;
+  return query?.threadUuid;
 };
 
 export { getAssistanceResponse };
